@@ -1,0 +1,42 @@
+'''
+UART communication on Raspberry Pi using Pyhton
+http://www.electronicwings.com
+'''
+import serial
+from time import sleep
+import csv
+import RPi.GPIO as GPIO
+
+# Pins for Motor Driver Inputs 
+IN1 = 27
+IN2 = 17
+EN = 22
+D1 = 13
+
+ser = serial.Serial ("/dev/ttyS0", 9600)    #Open port with baud rate
+while True:
+    command = input("Type the command: ")
+    if command == 'start':
+        print("start thr motor")
+        print("start the timer")
+    else:
+        print("command not found")
+        continue
+    received_data = ser.read()              #read serial port
+    sleep(0.03)
+    data_left = ser.inWaiting()             #check for remaining byte
+    received_data += ser.read(data_left)
+    print (received_data)                   #print received data
+    # ser.write(received_data) 
+    if received_data == b'STOP':
+        print("STOP the motor")
+        print("stop the timer")
+        received_data = ser.read()              #read serial port
+        sleep(0.03)
+        data_left = ser.inWaiting()             #check for remaining byte
+        received_data += ser.read(data_left)
+        with open('data.csv', mode='a') as data_file:
+            csv_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow([received_data])
+        print("run tbe motor in reverse for the timer time")
+        
